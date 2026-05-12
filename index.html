@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="一个简洁优雅的视频嵌入网页示例 - 使用HTML5原生视频播放器">
+    <title>视频嵌入 · 流媒体展示 | HBuilder X 项目</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #eef2f6 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, 'Noto Sans', sans-serif;
+            line-height: 1.5;
+            color: #1e2a3e;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* 头部样式 */
+        .hero {
+            text-align: center;
+            margin-bottom: 2.8rem;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1f3b4c, #2c5a6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subhead {
+            font-size: 1.1rem;
+            color: #4a627a;
+            border-bottom: 2px solid rgba(44, 90, 110, 0.2);
+            display: inline-block;
+            padding-bottom: 0.4rem;
+        }
+
+        /* 视频卡片容器 */
+        .video-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .video-card:hover {
+            box-shadow: 0 28px 38px -16px rgba(0, 0, 0, 0.25);
+            transform: translateY(-3px);
+        }
+
+        /* 视频播放器区域 */
+        .video-wrapper {
+            background: #000000;
+            position: relative;
+            width: 100%;
+            background-color: #0a0c10;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            vertical-align: middle;
+            /* 保证视频比例正常，不裁剪关键内容 */
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* 信息栏 (视频元数据 + 替换指引) */
+        .video-info {
+            padding: 1.5rem 1.8rem;
+            background: white;
+            border-top: 1px solid #e9edf2;
+        }
+
+        .video-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0a2b38;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.6rem;
+        }
+
+        .badge {
+            background: #e7f0f5;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2c5a6e;
+            letter-spacing: 0.3px;
+        }
+
+        .video-description {
+            color: #2d3e50;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #6c9eb3;
+            padding-left: 1rem;
+            background: #f9fbfd;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* 替换指引区域 */
+        .guide-box {
+            background: #f0f4f9;
+            border-radius: 1.2rem;
+            padding: 1.2rem 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 1rem;
+            border: 1px solid #dce5ec;
+        }
+
+        .guide-icon {
+            background: #2c5a6e;
+            width: 38px;
+            height: 38px;
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .guide-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .guide-text p {
+            margin-bottom: 0.4rem;
+        }
+
+        .code-snippet {
+            background: #1e2a36;
+            color: #c3e0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+
+        .btn-note {
+            background: #e2e8f0;
+            color: #1f3b4c;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-note:hover {
+            background: #cbdde6;
+        }
+
+        /* 附加功能说明区 */
+        .feature-footer {
+            text-align: center;
+            margin-top: 2.2rem;
+            font-size: 0.8rem;
+            color: #5e727f;
+            background: rgba(255,255,240,0.5);
+            padding: 0.8rem;
+            border-radius: 3rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .feature-footer a {
+            color: #2c5a6e;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .feature-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式微调 */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.7rem;
+            }
+
+            .video-info {
+                padding: 1rem;
+            }
+
+            .video-title {
+                font-size: 1.2rem;
+            }
+
+            .guide-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .guide-icon {
+                align-self: flex-start;
+            }
+        }
+
+        /* 简单加载状态提示（优雅处理） */
+        .video-wrapper::before {
+            content: "🎬 视频加载中 ...";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,255,240,0.7);
+            background: rgba(0,0,0,0.6);
+            padding: 0.4rem 1rem;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        video:not([src]) + .video-wrapper::before,
+        video[src=""] + .video-wrapper::before {
+            opacity: 1;
+        }
+        /* 后备显示优化：若视频无法加载显示友好信息 */
+        video {
+            background: #111;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- 头部介绍 -->
+    <div class="hero">
+        <h1>🎥 影音现场 · 嵌入式视频</h1>
+        <div class="subhead">原生流畅播放 | 全平台兼容 | 优雅呈现</div>
+    </div>
+
+    <!-- 视频卡片区域 -->
+    <div class="video-card">
+        <div class="video-wrapper">
+            <!-- HTML5 video 标签嵌入视频 
+                 示例使用高质量公网测试视频（Big Buck Bunny 短片片段，广泛用于演示，短小稳定）
+                 您完全可以替换为自己的视频文件路径，支持 .mp4, .webm, .ogg 等格式
+            -->
+            <video 
+                id="mainVideo"
+                controls 
+                playsinline 
+                preload="metadata"
+                poster="img/456.png"
+                crossorigin="anonymous"
+            >
+                <!-- 主要视频源 (MP4 格式兼容性最佳) 
+                     视频URL: 来源于 w3schools 的经典测试短片(Big Buck Bunny片段), 小体积快速演示
+                     你可以把 src 替换成相对路径或任何线上视频地址，例如： "videos/my_demo.mp4"
+                -->
+                <source src="videos/123.mp4" type="video/mp4">
+                <!-- 备用 WebM 格式（可选，提升浏览器兼容） 
+                     该链接为示例备源，实际项目中可放置相同内容的WebM文件 -->
+                <source src="https://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4">
+                <!-- 备用说明：如果浏览器完全不支持video标签 -->
+                <div class="browser-fallback">
+                    ⚠️ 您的浏览器不支持 HTML5 video 标签。请升级浏览器或使用现代浏览器查看视频内容。
+                </div>
+            </video>
+        </div>
+
+        <div class="video-info">
+            <div class="video-title">
+                🌟 精彩时刻 · 沉浸体验
+                <span class="badge">720P 示例演示</span>
+                <span class="badge">MP4 / H.264</span>
+            </div>
+            <div class="video-description">
+                ✨ 这是一个使用<strong>原生video标签</strong>嵌入的影片。支持播放/暂停、音量调节、全屏等功能。
+                下方提供详细的替换指引 —— 轻松将视频换成你自己的内容。
+            </div>
+
+            <!-- 替换指引框 -->
+            <div class="guide-box">
+                <div class="guide-icon">📁</div>
+                <div class="guide-text">
+                    <p><strong>✏️ 如何替换成自己的视频？</strong><br>
+                    方式一：将视频文件（例如 <code>myvideo.mp4</code>）放入项目文件夹，然后修改下方<strong>video 标签内</strong>的 src 或 source 路径。</p>
+                    <p><span class="code-snippet">&lt;source src="videos/你的视频.mp4" type="video/mp4"&gt;</span></p>
+                    <p>方式二：使用外部视频链接（需支持跨域访问/公网地址），直接替换 <code>src</code> 属性即可。</p>
+                    <p>🎯 建议视频格式：<strong>MP4 (H.264编码)</strong> 以保证最大兼容。若需要同时支持老设备，可添加 WebM 备用源。</p>
+                    <div style="margin-top: 6px;">
+                        <a href="#" class="btn-note" id="copyPathHint">📋 复制当前视频src</a>
+                        <span style="margin-left: 12px; font-size: 0.75rem; color:#4b6a7c;">💡 本页面默认展示公网示例视频，确保开箱即用。</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 额外技术提示与风格说明 -->
+    <div class="feature-footer">
+        <span>⚡ 采用 HTML5 标准 <code>&lt;video&gt;</code> 控件 &nbsp;|&nbsp; </span>
+        <span>📱 完美支持移动端 (playsinline 内联播放) &nbsp;|&nbsp; </span>
+        <span>🎨 响应式布局，适配各种屏幕 &nbsp;|&nbsp; </span>
+        <span><a href="#" id="resetVideoLink">🔄 重新加载视频</a></span>
+        <br><small style="opacity: 0.7;">HBuilder X 推荐：直接复制本代码至 index.html，右键 -> 运行到浏览器 或 内置webview 即刻预览视频网站效果</small>
+    </div>
+</div>
+
+<script>
+    // 简单交互辅助：获取video元素，增加用户便利功能
+    const video = document.getElementById('mainVideo');
+    
+    // 视频加载失败时显示友好的错误提示（避免用户困惑）
+    if (video) {
+        // 错误处理：当视频因网络/地址失效时，展示提示并可重置
+        video.addEventListener('error', function(e) {
+            const errorType = video.error ? video.error.code : 'unknown';
+            let errorMsg = '';
+            switch(errorType) {
+                case 1: errorMsg = '视频加载中止，请检查网络或视频源地址。'; break;
+                case 2: errorMsg = '网络错误，无法获取视频数据。'; break;
+                case 3: errorMsg = '视频解码失败，可能是格式不兼容。'; break;
+                case 4: errorMsg = '视频链接无效或文件不存在。'; break;
+                default: errorMsg = '视频加载失败，请检查 src 路径。';
+            }
+            // 优雅提醒（不破坏界面，仅添加临时提示）
+            const toast = document.createElement('div');
+            toast.textContent = `⚠️ ${errorMsg} 您可以修改视频源路径或重新尝试。`;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = '#2d2f36';
+            toast.style.color = '#ffdfb8';
+            toast.style.padding = '8px 20px';
+            toast.style.borderRadius = '40px';
+            toast.style.fontSize = '0.8rem';
+            toast.style.zIndex = '999';
+            toast.style.backdropFilter = 'blur(8px)';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            toast.style.whiteSpace = 'nowrap';
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 800); }, 4000);
+            console.warn('Video error:', errorMsg);
+        });
+        
+        // 可选: 当视频首次可以播放时，控制台输出提示 (调试友好)
+        video.addEventListener('canplay', function() {
+            console.log('✅ 视频已就绪，可流畅播放。');
+        });
+    }
+    
+    // “复制视频src” 小功能（方便开发者获取当前源地址用于替换）
+    const copyBtn = document.getElementById('copyPathHint');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // 获取当前正在使用的视频源（优先取 src，否则取第一个 source 的 src）
+            let currentSrc = video ? video.currentSrc || video.src : '';
+            if (!currentSrc && video) {
+                const sources = video.querySelectorAll('source');
+                if (sources.length > 0 && sources[0].src) {
+                    currentSrc = sources[0].src;
+                } else {
+                    currentSrc = '未找到视频源，请检查 video 标签配置';
+                }
+            }
+            if (currentSrc && currentSrc !== '') {
+                navigator.clipboard.writeText(currentSrc).then(() => {
+                    // 显示一个轻提示
+                    let tip = document.createElement('span');
+                    tip.textContent = '✅ 视频地址已复制！可粘贴替换新视频路径';
+                    tip.style.position = 'fixed';
+                    tip.style.bottom = '70px';
+                    tip.style.left = '50%';
+                    tip.style.transform = 'translateX(-50%)';
+                    tip.style.backgroundColor = '#1e2a36';
+                    tip.style.color = '#ecf9ff';
+                    tip.style.padding = '6px 18px';
+                    tip.style.borderRadius = '40px';
+                    tip.style.fontSize = '0.75rem';
+                    tip.style.zIndex = '1000';
+                    tip.style.fontFamily = 'monospace';
+                    document.body.appendChild(tip);
+                    setTimeout(() => tip.remove(), 2000);
+                }).catch(() => {
+                    alert('手动复制失败，但您可以查看控制台或者直接编辑代码中的 src 地址。');
+                });
+            } else {
+                alert('当前未检测到有效视频地址，请在代码中填入视频路径。');
+            }
+        });
+    }
+
+    // 重新加载视频链接的辅助按钮：一键重置视频播放(重新加载相同src，解决卡顿或切换问题)
+    const resetLink = document.getElementById('resetVideoLink');
+    if (resetLink && video) {
+        resetLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const originalSrc = video.src;
+            if (originalSrc) {
+                // 重新加载: 先清空再赋回，触发重新加载
+                video.pause();
+                video.src = '';
+                video.load(); // 重置加载状态
+                // 重新设置源（保留原始source）
+                // 注意: 最好使用 data 属性记录源，简单做法重新获取原本第一个source或保存当前src
+                const sources = video.querySelectorAll('source');
+                if (sources.length > 0) {
+                    // 重新激活 source 列表
+                    for (let srcElem of sources) {
+                        const srcVal = srcElem.getAttribute('src');
+                        if (srcVal) {
+                            // 重新设置src后load
+                            video.src = srcVal;
+                            video.load();
+                            break;
+                        }
+                    }
+                } else {
+                    // 没有source时，直接重设原有src
+                    if (originalSrc) {
+                        video.src = originalSrc;
+                        video.load();
+                    }
+                }
+                // 可选: 提示刷新
+                const resetMsg = document.createElement('div');
+                resetMsg.textContent = '⟳ 视频已重新加载，可以尝试播放了！';
+                resetMsg.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#2c5a6e; color:white; padding:6px 18px; border-radius:60px; font-size:0.75rem; z-index:1000; opacity:0.9;';
+                document.body.appendChild(resetMsg);
+                setTimeout(() => resetMsg.remove(), 1800);
+            } else {
+                alert('未发现视频源，请确保 video 或者 source 标签配置了有效的视频地址');
+            }
+        });
+    }
+    
+    // 可选：增加对于新手的额外友好提示——右键菜单调试提醒
+    document.addEventListener('DOMContentLoaded', () => {
+        // 如果视频封面poster加载失败也无影响，不做过多干涉
+        if (video && video.poster) {
+            const imgTest = new Image();
+            imgTest.onerror = () => {
+                console.log('Poster 封面图未加载成功，不影响视频播放，可自定义更换 poster 属性');
+            };
+            imgTest.src = video.poster;
+        }
+        
+        // 对视频默认显示提示：如果示例视频因为网络超时，则显示可替换说明
+        const originalTimeout = setTimeout(() => {
+            if (video && video.readyState === 0) {
+                const slowTip = document.createElement('div');
+                slowTip.innerHTML = '🌐 示例视频加载较慢？请替换为本地视频或更快的网络地址。<br>📌 查看代码中 "video" 部分的 src 属性来修改。';
+                slowTip.style.position = 'fixed';
+                slowTip.style.bottom = '100px';
+                slowTip.style.left = '20px';
+                slowTip.style.right = '20px';
+                slowTip.style.maxWidth = '320px';
+                slowTip.style.backgroundColor = '#fff9e8';
+                slowTip.style.borderLeft = '4px solid #e6a017';
+                slowTip.style.padding = '10px 15px';
+                slowTip.style.borderRadius = '16px';
+                slowTip.style.fontSize = '0.8rem';
+                slowTip.style.boxShadow = '0 8px 18px rgba(0,0,0,0.1)';
+                slowTip.style.zIndex = '999';
+                document.body.appendChild(slowTip);
+                setTimeout(() => {
+                    if(slowTip && slowTip.remove) slowTip.remove();
+                }, 8000);
+            }
+        }, 4500);
+        // 如果视频能播放则清除超时提示
+        if (video) {
+            video.addEventListener('canplaythrough', () => clearTimeout(originalTimeout), { once: true });
+        }
+    });
+</script>
+
+<!-- 额外样式：确保video后备文字美观 -->
+<style>
+    .browser-fallback {
+        background: #2d2f36;
+        color: #f6d7b0;
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+        border-radius: 20px;
+    }
+    /* 自定义视频控制栏的圆角细节 (只作用于现代浏览器) */
+    video::-webkit-media-controls-panel {
+        background-image: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    }
+    code {
+        background: #eef2f5;
+        padding: 0.2rem 0.4rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        color: #175d73;
+        font-family: monospace;
+    }
+    .code-snippet {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        background: #1f2e38;
+        color: #cbe9f5;
+    }
+    a {
+        transition: all 0.2s ease;
+    }
+</style>
+</body>
+</html>
